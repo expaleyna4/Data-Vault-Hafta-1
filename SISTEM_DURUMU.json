@@ -1,0 +1,113 @@
+{
+  "proje": "Data Vault - Hafta 1 Sistemi", 
+  "tarih": "2025-12-08",
+  "sistem": "Ubuntu WSL",
+  "kullanici": "xxx",
+  
+  "git_repository": {
+    "dizin": "~/data-vault",
+    "ilk_commit": "c300e18 - feat: temel dizin yapısı ve ilk dokümanlar eklendi",
+    "dal": "master"
+  },
+  
+  "gruplar": [
+    {
+      "grup_adi": "finans",
+      "gid": "1001",
+      "uyeler": ["finansuser"]
+    },
+    {
+      "grup_adi": "ik",
+      "gid": "1002",
+      "uyeler": ["ikuser"]
+    },
+    {
+      "grup_adi": "denetci",
+      "gid": "1003",
+      "uyeler": ["denetci"]
+    }
+  ],
+  
+  "kullanicilar": [
+    {
+      "kullanici_adi": "finansuser",
+      "uid": "1001",
+      "birincil_grup": "finansuser",
+      "ek_gruplar": ["finans"],
+      "home": "/home/finansuser"
+    },
+    {
+      "kullanici_adi": "ikuser",
+      "uid": "1002",
+      "birincil_grup": "ikuser",
+      "ek_gruplar": ["ik"],
+      "home": "/home/ikuser"
+    },
+    {
+      "kullanici_adi": "denetci",
+      "uid": "1003",
+      "birincil_grup": "denetci",
+      "ek_gruplar": ["denetci"],
+      "home": "/home/denetci"
+    }
+  ],
+  
+  "departman_klasorleri": [
+    {
+      "dizin": "/data/finans",
+      "sahip": "root",
+      "grup": "finans",
+      "izinler": "2770",
+      "sgid": true,
+      "aciklama": "SGID biti aktif - oluşturulan dosyalar finans grubuna ait olur"
+    },
+    {
+      "dizin": "/data/ik",
+      "sahip": "root",
+      "grup": "ik",
+      "izinler": "2770",
+      "sgid": true,
+      "aciklama": "SGID biti aktif - oluşturulan dosyalar ik grubuna ait olur"
+    }
+  ],
+  
+  "acl_yetkileri": [
+    {
+      "dizin": "/data/finans",
+      "kullanici": "denetci",
+      "yetki": "r-x",
+      "default_acl": true,
+      "aciklama": "Sadece okuma ve listeleme - yazma yok"
+    },
+    {
+      "dizin": "/data/ik",
+      "kullanici": "denetci",
+      "yetki": "r-x",
+      "default_acl": true,
+      "aciklama": "Sadece okuma ve listeleme - yazma yok"
+    }
+  ],
+  
+  "test_sonuclari": {
+    "finansuser_ik_erisim": "BASARISIZ (Beklenen - Permission denied)",
+    "ikuser_finans_erisim": "BASARISIZ (Beklenen - Permission denied)",
+    "denetci_finans_okuma": "BASARILI",
+    "denetci_finans_yazma": "BASARISIZ (Beklenen - Permission denied)",
+    "denetci_ik_okuma": "BASARILI",
+    "finansuser_finans_yazma": "BASARILI (rapor.txt oluşturuldu)",
+    "sgid_calisiyor": true
+  },
+  
+  "gerekli_paketler": [
+    "git",
+    "acl"
+  ],
+  
+  "onemli_notlar": [
+    "SGID (Set Group ID) biti sayesinde klasörlerde oluşturulan dosyalar otomatik olarak klasörün grubuna ait olur",
+    "ACL (Access Control List) ile standart Unix izinlerinin ötesinde daha detaylı yetki kontrolü sağlanır",
+    "Default ACL sayesinde gelecekte oluşturulacak dosyalar da otomatik olarak aynı ACL kurallarını miras alır",
+    "2770 izni: Sahip rwx, Grup rwx, Diğerleri ---",
+    "İlk rakam 2: SGID biti aktif anlamına gelir"
+  ]
+}

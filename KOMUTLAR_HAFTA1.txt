@@ -1,0 +1,223 @@
+# DATA VAULT - HAFTA 1 - KOMUT REFERANSı
+# Tüm kullanılan komutlar ve açıklamaları
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GRUP YÖNETİMİ
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Grup oluştur
+sudo groupadd finans
+# Yorum: 'finans' adında yeni bir grup oluşturur
+
+sudo groupadd ik
+# Yorum: 'ik' adında yeni bir grup oluşturur
+
+sudo groupadd denetci
+# Yorum: 'denetci' adında yeni bir grup oluşturur
+
+# Grup bilgilerini görüntüle
+getent group finans
+# Yorum: finans grubunun detaylarını gösterir (GID, üyeler)
+
+getent group ik
+# Yorum: ik grubunun detaylarını gösterir
+
+getent group denetci
+# Yorum: denetci grubunun detaylarını gösterir
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+KULLANICI YÖNETİMİ
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Kullanıcı oluştur ve gruba ekle
+sudo useradd -M -s /bin/bash -G finans finansuser
+# Yorum: finansuser oluştur, home dizini yok (-M), bash shell, finans grubuna ekle
+
+sudo useradd -M -s /bin/bash -G ik ikuser
+# Yorum: ikuser oluştur ve ik grubuna ekle
+
+sudo useradd -M -s /bin/bash -g denetci denetci
+# Yorum: denetci kullanıcı oluştur, primary grubu denetci (-g)
+
+# Kullanıcı bilgilerini görüntüle
+id finansuser
+# Yorum: finansuser'ın UID, GID ve grup üyeliklerini gösterir
+
+id ikuser
+# Yorum: ikuser'ın detaylarını gösterir
+
+id denetci
+# Yorum: denetci kullanıcının detaylarını gösterir
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DİZİN OLUŞTURMA VE İZİNLER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Dizin oluştur
+sudo mkdir -p /data/finans
+# Yorum: /data/finans dizinini oluşturur (-p parent dizinleri de oluşturur)
+
+sudo mkdir -p /data/ik
+# Yorum: /data/ik dizinini oluşturur
+
+# SGID izinleri ayarla
+sudo chmod 2770 /data/finans
+# Yorum: 2770 = SGID bit + rwxrws--- izinleri (yeni dosyalar dizin grubunu alır)
+
+sudo chmod 2770 /data/ik
+# Yorum: ik dizinine SGID izinleri ayarla
+
+# Dizin sahipliğini ayarla
+sudo chown root:finans /data/finans
+# Yorum: Dizin sahibi root, grup finans olarak ayarla
+
+sudo chown root:ik /data/ik
+# Yorum: Dizin sahibi root, grup ik olarak ayarla
+
+# Dizin bilgilerini görüntüle
+ls -ld /data/finans
+# Yorum: Dizin detayları (izinler, sahip, grup, boyut)
+
+ls -ld /data/ik
+# Yorum: ik dizininin detaylarını göster
+
+# İzin kodlarını sayısal olarak görüntüle
+stat -c '%a %n' /data/finans
+# Yorum: Dizinin sayısal izin kodunu gösterir (%a=izin, %n=dosya adı)
+
+# Sahiplik bilgilerini görüntüle
+stat -c '%U:%G %n' /data/finans
+# Yorum: Sahip:Grup formatında gösterir (%U=user, %G=group)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ACL (ACCESS CONTROL LIST) YÖNETİMİ
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# ACL izni ekle
+sudo setfacl -m u:denetci:r-x /data/finans
+# Yorum: denetci kullanıcısına r-x (read+execute) izni ver (-m=modify)
+
+sudo setfacl -m u:denetci:r-x /data/ik
+# Yorum: ik dizinine de aynı ACL iznini ekle
+
+# Default ACL ekle (yeni dosyalar için)
+sudo setfacl -d -m u:denetci:r-x /data/finans
+# Yorum: Yeni oluşturulan dosyalara otomatik ACL uygula (-d=default)
+
+sudo setfacl -d -m u:denetci:r-x /data/ik
+# Yorum: ik dizini için default ACL ayarla
+
+# ACL izinlerini görüntüle
+getfacl /data/finans
+# Yorum: Tüm ACL izinlerini detaylı gösterir
+
+getfacl /data/ik
+# Yorum: ik dizininin ACL izinlerini göster
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DOSYA İŞLEMLERİ VE TEST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Başka kullanıcı olarak dosya oluştur
+sudo -u finansuser touch /data/finans/test.txt
+# Yorum: finansuser olarak dosya oluştur (SGID testi için)
+
+# Dosya detaylarını göster
+ls -l /data/finans/test.txt
+# Yorum: Dosyanın izinlerini, sahibini ve grubunu göster
+
+# Başka kullanıcı olarak dizin listeleme (izolasyon testi)
+sudo -u finansuser ls /data/ik
+# Yorum: finansuser'ın ik dizinine erişip erişemediğini test et (Permission denied olmalı)
+
+# Başka kullanıcı olarak okuma testi
+sudo -u denetci cat /data/finans/test.txt
+# Yorum: denetci'nin ACL ile okuma iznini test et
+
+# Başka kullanıcı olarak yazma testi
+sudo -u denetci touch /data/finans/test2.txt
+# Yorum: denetci'nin yazma izninin olmadığını doğrula (Permission denied beklenir)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GİT İŞLEMLERİ
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Git konfigürasyonu
+git config --global user.name "Data Vault Admin"
+# Yorum: Git commit'lerde görünecek ismi ayarla
+
+git config --global user.email "admin@datavault.local"
+# Yorum: Git commit'lerde görünecek email'i ayarla
+
+# Repository oluştur
+cd ~/data-vault
+git init
+# Yorum: Mevcut dizini Git repository'ye çevir
+
+# Dosyaları stage'e ekle
+git add .
+# Yorum: Tüm dosyaları commit için hazırla (. = tüm dosyalar)
+
+# Commit yap
+git commit -m "feat: temel dizin yapısı ve ilk dokümanlar eklendi"
+# Yorum: Değişiklikleri kaydet, açıklama mesajı ile (-m)
+
+# Commit geçmişini göster
+git log --oneline
+# Yorum: Commit geçmişini kısa formatta göster (1 satır/commit)
+
+# Git durumunu göster
+git status
+# Yorum: Değişiklikleri, staged dosyaları, branch bilgisini göster
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+YARDIMCI KOMUTLAR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Dizin ağacını göster
+tree /data -L 2
+# Yorum: /data altındaki yapıyı 2 seviye derinliğinde göster
+
+# Dizini recursive listele
+ls -lR /data
+# Yorum: /data ve alt dizinlerini detaylı listele (-R=recursive)
+
+# Dosya/dizin sayısını say
+ls -la /data/finans | wc -l
+# Yorum: finans dizinindeki toplam dosya/dizin sayısı
+
+# Manuel sayfaları görüntüle
+man chmod
+# Yorum: chmod komutunun detaylı kullanım kılavuzunu göster
+
+man setfacl
+# Yorum: setfacl komutunun kılavuzunu göster
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ÖNEMLİ NOTLAR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+İZİN KODLARI:
+  2770 = SGID + rwxrwx---
+    2 = SGID bit (Set Group ID)
+    7 = rwx (owner: read+write+execute)
+    7 = rwx (group: read+write+execute)
+    0 = --- (other: no permission)
+
+ACL İZİNLERİ:
+  r-x = read + execute
+    r = dosya okuma, dizin listeleme
+    x = dosya çalıştırma, dizine girme
+    - = yazma yok (write denied)
+
+SGID ÇALIŞMA MANTIĞI:
+  - Normal: Oluşturulan dosya → kullanıcının primary grubuna ait olur
+  - SGID ile: Oluşturulan dosya → dizinin grubuna ait olur
+  - Avantaj: Ekip çalışması, dosyalar otomatik doğru gruba ait olur
